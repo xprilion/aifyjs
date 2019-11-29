@@ -5,15 +5,3 @@ body {
   font-family: sans-serif;
   height: 100%;
 }
-
-h1 {
-  margin: 0;
-  font-weight: 300;
-}
-
-#root {
-  background: url("image.png") no-repeat 98% 2%;
-  padding: 20px;
-  height: 100%;
-  box-sizing: border-box;
-}
