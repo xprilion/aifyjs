@@ -18,9 +18,6 @@
   "bugs": {
     "url": "https://github.com/xprilion/aifyjs/issues"
   },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  },
   "homepage": "https://github.com/xprilion/aifyjs",
   "keywords": [
     "library",
