@@ -1,6 +1,6 @@
 {
   "name": "@xprilion/aifyjs",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Javascript library that does something",
   "main": "build/index.js",
   "scripts": {
