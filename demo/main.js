@@ -1,6 +1,2 @@
-let aify = window.aify.default;
-let aifyInstance = new aify();
-
-console.log("aifyInstance", aifyInstance);
-
-aifyInstance.myMethod();
+var ai = new aifyjs(5);
+console.log(ai.area());

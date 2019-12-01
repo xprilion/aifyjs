@@ -1,13 +1,12 @@
-// import "./index.css";
-
 class aify {
-  constructor() {
-    console.log("Library constructor loaded");
+  constructor(width) {
+    this.width = width;
   }
-
-  myMethod = () => {
-    console.log("Library method fired");
-  };
+  area() {
+    return Math.pow(this.width, 2);
+  }
 }
 
-export default aify;
+window.aifyjs = aify;
+
+export default aifyjs;
