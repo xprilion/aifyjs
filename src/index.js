@@ -9,7 +9,7 @@ class aify {
 
     $.ajax({
       method: "POST",
-      url: "http://423b4a7b.ngrok.io/js/",
+      url: "http://#HOST_URL#/js/",
       data: {
         pageBody: this.html
         // csrf_token: this.csrf_token
