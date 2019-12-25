@@ -2,28 +2,46 @@
 
 class aify {
   constructor() {
-    // this.html = document.documentElement.innerHTML;
     var $ = window.$;
     this.html = $("html").html();
-    // this.csrf_token = "#CSRF_TOKEN";
 
     $.ajax({
       method: "POST",
-      url: "http://#HOST_URL#/js/",
-      data: {
-        pageBody: this.html
-        // csrf_token: this.csrf_token
-      },
+      url: "https://#HOST_URL#/api/check",
       success: function(response) {
         console.log(response);
       }
-    }).done(function() {
-      console.log("Done query!");
     });
   }
-  // area() {
-  //   return Math.pow(this.width, 2);
-  // }
+
+  labels = function() {
+    $.ajax({
+      method: "POST",
+      url: "https://#HOST_URL#/api/labels",
+      data: {
+        pageBody: this.html
+      },
+      success: function(response) {
+        console.log(response);
+
+        var changes = response.data.changes;
+        for (var i = 0; i < changes.length; i++) {
+          var xp = changes[i].xpath;
+          var changeItems = changes[i].changes;
+          for (var key in changeItems) {
+            var element = document.evaluate(
+              xp,
+              document,
+              null,
+              XPathResult.ANY_UNORDERED_NODE_TYPE,
+              null
+            );
+            element.singleNodeValue.setAttribute(key, changeItems[key]);
+          }
+        }
+      }
+    });
+  };
 }
 
 window.aifyjs = aify;
