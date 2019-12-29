@@ -1,6 +1,6 @@
 /*!
  * 
- *   @xprilion/aifyjs v0.0.14
+ *   @xprilion/aifyjs v0.1.0
  *   https://github.com/xprilion/aifyjs
  * 
  *   Copyright (c) Anubhav Singh (https://github.com/xprilion)
