@@ -1,4 +1,5 @@
 // var $ = require("jquery");
+var baseUrl = "https://35.239.40.149/api";
 
 class aify {
   constructor() {
@@ -7,7 +8,7 @@ class aify {
 
     $.ajax({
       method: "POST",
-      url: "https://#HOST_URL#/api/check",
+      url: baseUrl + "/check",
       success: function(response) {
         console.log(response);
       }
@@ -17,7 +18,7 @@ class aify {
   labels = function() {
     $.ajax({
       method: "POST",
-      url: "https://#HOST_URL#/api/labels",
+      url: baseUrl + "/labels",
       data: {
         pageBody: this.html
       },
