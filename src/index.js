@@ -1,5 +1,5 @@
 // var $ = require("jquery");
-var baseUrl = "https://f2168751.ngrok.io/api";
+var baseUrl = "https://568bd7cf.ngrok.io/api";
 
 class aify {
   constructor() {
