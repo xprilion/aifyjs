@@ -1,7 +1,8 @@
-html,
-body {
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
-  height: 100%;
+#voice_active_banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  background: #f00;
+  font-size: 16px;
+  padding: 1rem;
 }

@@ -1,10 +1,48 @@
 // var $ = require("jquery");
+import "./index.css";
+
 var baseUrl = "https://568bd7cf.ngrok.io/api";
 // var baseUrl = "https://8b5766f9.ngrok.io/api";
 class aify {
   constructor() {
     var $ = window.$;
+    var jQuery = window.jQuery;
     this.html = $("html").html();
+
+    // var script = document.createElement('script');
+    // script.src = something;
+    // document.head.appendChild(script);
+
+    $(document).bind("tripleclick", function() {
+      window.SpeechRecognition =
+        window.webkitSpeechRecognition || window.SpeechRecognition;
+      var finalTranscript = "";
+      var recognition = new window.SpeechRecognition();
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 3;
+      recognition.continuous = true;
+      recognition.onresult = event => {
+        let interimTranscript = "";
+        for (
+          let i = event.resultIndex, len = event.results.length;
+          i < len;
+          i++
+        ) {
+          let transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript;
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+        console.log(finalTranscript);
+
+        finalTranscript = "";
+
+        recognition.stop();
+      };
+      recognition.start();
+    });
 
     $.ajax({
       method: "POST",
@@ -169,6 +207,11 @@ class aify {
         }
       }
     }
+  };
+
+  chatInit = function() {
+    var chatButtonSrc = "<div id='voice_active_banner'>aify</div>";
+    $("body").append(chatButtonSrc);
   };
 }
 
