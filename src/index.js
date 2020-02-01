@@ -1,8 +1,9 @@
 // var $ = require("jquery");
-// import "./index.css";
+import "./index.css";
 
 var baseUrl = "https://568bd7cf.ngrok.io/api";
-// var baseUrl = "https://8b5766f9.ngrok.io/api";
+// var baseUrl = "https://900476bd.ngrok.io/api";
+
 class aify {
   constructor() {
     var $ = window.$;
@@ -12,15 +13,19 @@ class aify {
 
     this.linksList = [];
     this.imageList = [];
-    this.fieldList = [];
+    this.formList = [];
 
-    this.pageSummary = "";
+    this.pageSummary = false;
 
     var self = this;
 
     var voiceActive = false;
 
     var dblClickCount = 0;
+
+    self.updateLinksList();
+    self.updateImageList();
+    self.updateFormList();
 
     window.SpeechRecognition =
       window.webkitSpeechRecognition || window.SpeechRecognition;
@@ -69,7 +74,7 @@ class aify {
     var lastTime = 0;
     var keyCounter = 0;
 
-    $("body").keydown(function(e) {
+    $(document).keydown(function(e) {
       if (e.which == 70) {
         keyCounter++;
         var curTime = new Date().getTime();
@@ -92,9 +97,177 @@ class aify {
       url: baseUrl + "/check",
       success: function(response) {
         console.log(response);
+        if (response.data.summary != "0") {
+          self.pageSummary = response.data.summary;
+        }
       }
     });
   }
+
+  goDialogFlow = function(text) {
+    var self = this;
+    $.ajax({
+      type: "POST",
+      url: "https://aifybot-jshimk.gateway.dialogflow.cloud.ushakov.co",
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      data: JSON.stringify({
+        session: "test",
+        queryInput: {
+          text: {
+            text: text,
+            languageCode: "en"
+          }
+        }
+      }),
+      success: function(data) {
+        var res = data.queryResult.intent.displayName;
+        console.log("Matched Intent: " + res);
+        // speechSynthesis.speak(new SpeechSynthesisUtterance(res));
+        switch (res) {
+          case "PageInfo":
+            self.describePage();
+            break;
+
+          case "PageSummary":
+            self.readSummary();
+            break;
+
+          case "PageLinks":
+            self.getPageLinks();
+            break;
+
+          case "FocusLink":
+            var linkid = data.queryResult.parameters.linkId;
+            self.focusLink(linkid);
+            break;
+
+          case "FollowLink":
+            var linkid = data.queryResult.parameters.linkId;
+            self.followLink(linkid);
+            break;
+
+          case "PageImages":
+            self.getImages();
+            break;
+
+          case "FocusImage":
+            var imgid = data.queryResult.parameters.imageId;
+            self.focusImage(imgid);
+            break;
+
+          case "AllFormItems":
+            self.getForms();
+            break;
+
+          case "DescribeItem":
+            self.describeItem();
+            break;
+
+          case "ClickItem":
+            self.clickItem();
+            break;
+
+          default:
+        }
+      },
+      error: function() {
+        console.log("Internal Server Error");
+      }
+    });
+  };
+
+  focusLink = function(x) {
+    var self = this;
+    document.links.item(x).focus();
+  };
+
+  focusImage = function(x) {
+    var self = this;
+    document.images.item(x).focus();
+  };
+
+  clickItem = function() {
+    var el = document.activeElement;
+    var ev = document.createEvent("Events");
+    ev.initEvent("keypress", true, true);
+    ev.keyCode = 13;
+    ev.which = 13;
+    ev.charCode = 13;
+    ev.key = "Enter";
+    ev.code = "Enter";
+    el.dispatchEvent(ev);
+  };
+
+  describeItem = function() {
+    var self = this;
+    var el = document.activeElement;
+    var tag = $(el)
+      .prop("tagName")
+      .toLowerCase();
+
+    var description = "";
+    if (tag == "a") {
+      description += "This is a link item ";
+      if ($(el).text().length > 0) {
+        description += ", it contains the text - " + $(el).text() + " ";
+      }
+      description += "and points to " + $(el).prop("href") + ".";
+
+      if ($(el).children("img").length > 0) {
+        description += " It contains an image ";
+        var el2 = $(el).children("img")[0];
+        if ($(el2).prop("alt").length > 0) {
+          description +=
+            ", with an alternate text reading - " + $(el2).prop("alt") + " ";
+        }
+      }
+    } else if (tag == "li") {
+      description += "This is a list item ";
+      if ($(el).text().length > 0) {
+        description += ", it contains the text - " + $(el).text() + " ";
+      }
+    } else if (tag == "img") {
+      description += "This is an image item ";
+      if ($(el).prop("alt").length > 0) {
+        description +=
+          ", it has an alternate text reading - " + $(el).prop("alt") + " ";
+      }
+    } else {
+      description += "This is an element of tag " + tag;
+    }
+
+    self.speak(description);
+  };
+
+  describePage = function() {
+    var self = this;
+    // Title
+    self.speak("The title of this page is: " + document.title);
+
+    // Links, images and forms
+    self.speak(
+      "This page has " +
+        self.linksList.length +
+        " links, " +
+        self.imageList.length +
+        " images and " +
+        self.formList.length +
+        " forms on it."
+    );
+
+    // Summary
+    if (self.pageSummary) {
+      self.speak(
+        "We have a summary available for this page. You can listen to it by using the Page Summary voice command."
+      );
+    }
+  };
+
+  readSummary = function() {
+    var self = this;
+    self.speak(self.pageSummary);
+  };
 
   labels = function() {
     var self = this;
@@ -129,7 +302,7 @@ class aify {
               var previousValue = element.singleNodeValue.getAttribute(key);
 
               if (previousValue && previousValue.length > 0) {
-                changes[i].changes = previousValue;
+                self.labelchanges[i].changes = previousValue;
               }
 
               element.singleNodeValue.setAttribute(key, changeItems[key]);
@@ -186,7 +359,8 @@ class aify {
               var previousValue = element.singleNodeValue.getAttribute(key);
 
               if (previousValue && previousValue.length > 0) {
-                changes[i].changes = previousValue;
+                console.log("Previous value: " + previousValue);
+                self.captionchanges[i].changes = previousValue;
               }
 
               var captionText = "This image contains - ";
@@ -209,6 +383,8 @@ class aify {
             }
           }
         }
+
+        self.updateImageList();
       }
     });
   };
@@ -256,7 +432,9 @@ class aify {
           var caption = document.createElement("div");
           // caption.style.background = "red";
           caption.style.color = "white";
-          caption.innerHTML = changeItems[key];
+          caption.innerHTML =
+            element.getAttribute("aify-caption") +
+            element.getAttribute("aify-ocr");
           wrapper.appendChild(caption);
         } catch (err) {
           console.log("captions");
@@ -274,6 +452,7 @@ class aify {
 
   updateLinksList = function() {
     var self = this;
+    self.linksList = [];
     // var linklist = self.linksList;
 
     var links = document.links;
@@ -288,11 +467,15 @@ class aify {
     var self = this;
     var linklist = self.linksList;
 
-    self.speak("The links on this page are - ");
+    var speech = "";
+
+    speech += "The links on this page are - ";
 
     for (var i = 0; i < linklist.length; i++) {
-      self.speak("Link number " + i + " - " + linklist[i].href);
+      speech += "Link number " + i + " - " + linklist[i].text + ", ";
     }
+
+    self.speak(speech);
   };
 
   followLink = function(linkId) {
@@ -303,6 +486,8 @@ class aify {
 
   updateImageList = function() {
     var self = this;
+    self.imageList = [];
+
     var images = document.images;
     for (var i = 0; i < images.length; i++) {
       images[i].setAttribute("imgid", i);
@@ -315,53 +500,42 @@ class aify {
     var self = this;
     var imglist = self.imageList;
 
-    self.speak("The images on this page are - ");
+    var speech = "";
+
+    speech += "The images on this page are - ";
 
     for (var i = 0; i < imglist.length; i++) {
-      self.speak("Image number " + i + " - " + imglist[i].alt);
+      speech += "Image number " + i + " - " + imglist[i].alt + ", ";
+    }
+
+    self.speak(speech);
+  };
+
+  updateFormList = function() {
+    var self = this;
+    self.formList = [];
+
+    var forms = document.forms;
+    for (var i = 0; i < forms.length; i++) {
+      forms[i].setAttribute("formid", i);
+      console.log(forms[i]);
+      self.formList.push(forms[i]);
     }
   };
 
-  goDialogFlow = function(text) {
+  getForms = function() {
     var self = this;
-    $.ajax({
-      type: "POST",
-      url: "https://aifybot-jshimk.gateway.dialogflow.cloud.ushakov.co",
-      contentType: "application/json; charset=utf-8",
-      dataType: "json",
-      data: JSON.stringify({
-        session: "test",
-        queryInput: {
-          text: {
-            text: text,
-            languageCode: "en"
-          }
-        }
-      }),
-      success: function(data) {
-        var res = data.queryResult.intent.displayName;
-        // speechSynthesis.speak(new SpeechSynthesisUtterance(res));
-        switch (res) {
-          case "PageLinks":
-            self.getPageLinks();
-            break;
+    var formlist = self.formList;
 
-          case "FollowLink":
-            var linkid = data.queryResult.parameters.linkId;
-            self.followLink(linkid);
-            break;
+    var speech = "";
 
-          case "PageImages":
-            self.getImages();
-            break;
+    speech += "The forms on this page are - ";
 
-          default:
-        }
-      },
-      error: function() {
-        console.log("Internal Server Error");
-      }
-    });
+    for (var i = 0; i < formlist.length; i++) {
+      speech += "Form number " + i + " - " + formlist[i].name + ", ";
+    }
+
+    self.speak(speech);
   };
 }
 

@@ -1,8 +1,6 @@
-#voice_active_banner {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  background: #f00;
-  font-size: 16px;
-  padding: 1rem;
+*:focus {
+  box-shadow: 0 0 5px rgba(81, 203, 238, 1);
+  padding: 3px 0px 3px 3px;
+  margin: 5px 1px 3px 0px;
+  border: 1px solid rgba(81, 203, 238, 1);
 }
