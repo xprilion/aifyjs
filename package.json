@@ -4,7 +4,7 @@
   "description": "Javascript library that does something",
   "main": "build/index.js",
   "scripts": {
-    "build": "webpack && cp build/index.js ../aifyjs.github.io/aify.js",
+    "build": "webpack && cp build/index.js ../aifyjs.github.io/aify.js && cp build/index.js /home/xprilion/aify_extension/ext/js/aify.js",
     "test": "jest",
     "prepare": "npm run build",
     "trypublish": "npm publish || true"
