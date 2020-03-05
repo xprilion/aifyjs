@@ -1,8 +1,8 @@
 // var $ = require("jquery");
-import "./index.css";
+// import "./index.css";
 
-var baseUrl = "https://568bd7cf.ngrok.io/api";
-// var baseUrl = "https://900476bd.ngrok.io/api";
+// var baseUrl = "https://568bd7cf.ngrok.io/api";
+var baseUrl = "https://aify.thecodefoundation.dev/api";
 
 class aify {
   constructor() {
@@ -62,7 +62,8 @@ class aify {
       if (dblClickCount > 1) {
         console.log("Voice input started");
         recognition.stop();
-        self.speak("Speak command: ");
+        // self.speak("Speak command: ");
+        // self.beep();
         recognition.start();
         voiceActive = true;
       } else {
@@ -83,7 +84,8 @@ class aify {
           keyCounter = 0;
           console.log("Voice input started");
           recognition.stop();
-          self.speak("Speak command: ");
+          // self.speak("Speak command: ");
+          // self.beep();
           recognition.start();
           voiceActive = true;
         } else {
@@ -106,6 +108,7 @@ class aify {
 
   goDialogFlow = function(text) {
     var self = this;
+    // self.bloop();
     $.ajax({
       type: "POST",
       url: "https://aifybot-jshimk.gateway.dialogflow.cloud.ushakov.co",
@@ -169,10 +172,14 @@ class aify {
             break;
 
           default:
+            self.speak("Sorry, I could not understand that. Please try again!");
         }
       },
       error: function() {
         console.log("Internal Server Error");
+      },
+      complete: function() {
+        // self.doubleBeep();
       }
     });
   };
@@ -180,23 +187,18 @@ class aify {
   focusLink = function(x) {
     var self = this;
     document.links.item(x).focus();
+    self.speak("Focused on link " + x);
   };
 
   focusImage = function(x) {
     var self = this;
     document.images.item(x).focus();
+    self.speak("Focused on image " + x);
   };
 
   clickItem = function() {
     var el = document.activeElement;
-    var ev = document.createEvent("Events");
-    ev.initEvent("keypress", true, true);
-    ev.keyCode = 13;
-    ev.which = 13;
-    ev.charCode = 13;
-    ev.key = "Enter";
-    ev.code = "Enter";
-    el.dispatchEvent(ev);
+    $(el).click();
   };
 
   describeItem = function() {
@@ -213,6 +215,10 @@ class aify {
         description += ", it contains the text - " + $(el).text() + " ";
       }
       description += "and points to " + $(el).prop("href") + ".";
+
+      self.speak(description);
+
+      description = "";
 
       if ($(el).children("img").length > 0) {
         description += " It contains an image ";
@@ -266,7 +272,10 @@ class aify {
 
   readSummary = function() {
     var self = this;
-    self.speak(self.pageSummary);
+    var sentences = self.pageSummary.split(". ");
+    for (var i = 0; i < sentences.length; i++) {
+      self.speak(sentences[i]);
+    }
   };
 
   labels = function() {
@@ -389,6 +398,19 @@ class aify {
     });
   };
 
+  recommendations = function() {
+    var self = this;
+
+    $.ajax({
+      method: "POST",
+      url: baseUrl + "/recommendations",
+      data: {},
+      success: function(response) {
+        console.log(response);
+      }
+    });
+  };
+
   displayLabels = function() {
     var changes = this.labelchanges;
     for (var i = 0; i < changes.length; i++) {
@@ -458,7 +480,7 @@ class aify {
     var links = document.links;
     for (var i = 0; i < links.length; i++) {
       links[i].setAttribute("linkid", i);
-      console.log(links[i]);
+      // console.log(links[i]);
       self.linksList.push(links[i]);
     }
   };
@@ -469,13 +491,15 @@ class aify {
 
     var speech = "";
 
-    speech += "The links on this page are - ";
+    speech = "The links on this page are - ";
+    self.speak(speech);
 
     for (var i = 0; i < linklist.length; i++) {
-      speech += "Link number " + i + " - " + linklist[i].text + ", ";
+      speech = "Link number " + i + " - " + linklist[i].text + ", ";
+      self.speak(speech);
     }
 
-    self.speak(speech);
+    // self.speak(speech);
   };
 
   followLink = function(linkId) {
@@ -491,7 +515,8 @@ class aify {
     var images = document.images;
     for (var i = 0; i < images.length; i++) {
       images[i].setAttribute("imgid", i);
-      console.log(images[i]);
+      images[i].setAttribute("tabindex", 0);
+      // console.log(images[i]);
       self.imageList.push(images[i]);
     }
   };
@@ -502,13 +527,15 @@ class aify {
 
     var speech = "";
 
-    speech += "The images on this page are - ";
+    speech = "The images on this page are - ";
+    self.speak(speech);
 
     for (var i = 0; i < imglist.length; i++) {
-      speech += "Image number " + i + " - " + imglist[i].alt + ", ";
+      speech = "Image number " + i + " - " + imglist[i].alt + ", ";
+      self.speak(speech);
     }
 
-    self.speak(speech);
+    // self.speak(speech);
   };
 
   updateFormList = function() {
@@ -518,7 +545,7 @@ class aify {
     var forms = document.forms;
     for (var i = 0; i < forms.length; i++) {
       forms[i].setAttribute("formid", i);
-      console.log(forms[i]);
+      // console.log(forms[i]);
       self.formList.push(forms[i]);
     }
   };
@@ -529,13 +556,15 @@ class aify {
 
     var speech = "";
 
-    speech += "The forms on this page are - ";
+    speech = "The forms on this page are - ";
+    self.speak(speech);
 
     for (var i = 0; i < formlist.length; i++) {
-      speech += "Form number " + i + " - " + formlist[i].name + ", ";
+      speech = "Form number " + i + " - " + formlist[i].name + ", ";
+      self.speak(speech);
     }
 
-    self.speak(speech);
+    // self.speak(speech);
   };
 }
 
